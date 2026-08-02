@@ -1,16 +1,21 @@
-# Flujo de automatización · Migración web de ópticas
+# OPTICpress · Flujo de automatización
 
-Visualización, con la estética de **n8n**, del pipeline que automatiza la migración de webs de ópticas (Locomotive → WordPress) con rediseño UX/UI, usando **Python + Claude + WP-CLI + REST API**.
+**OPTICpress** es una línea de montaje automatizada que convierte la web anticuada de una óptica en un sitio **WordPress** moderno, sin trabajo manual repetitivo.
 
-**34 nodos** organizados en **10 fases**, con badges de tiempo por paso:
-`⏱ ~5 min/web automático · +2 h de diseño (solo la 1ª vez)`.
+Este repo contiene la **visualización del pipeline** con la estética de **n8n**: **34 nodos** en **10 fases**, con badges de tiempo por paso.
+
+> ⏱ **~5 min/web automático · +2 h de diseño (solo la 1ª vez).**
+
+## Qué hace
+
+Extrae el contenido de la web vieja (Locomotive) → lo audita y estructura con **IA (Claude)** → lo reconstruye sobre un diseño mejorado → instala y rellena **WordPress** (SSH + WP-CLI + REST API) → QA y publicación. La persona solo aporta el criterio de diseño la primera vez y da el visto bueno final. **Cuanto más se usa, más patrones aprende y más se automatiza.**
 
 ## Ver el flujo
 
-- **En vivo (GitHub Pages):** _se activa tras el primer despliegue_ → `https://codekadigital.github.io/optik-flujo-n8n/`
+- **En vivo (GitHub Pages):** `https://codekadigital.github.io/optik-flujo-n8n/`
 - **Local:** abre `index.html` en el navegador.
 
-## Cómo leerlo
+## Leyenda
 
 | Color | Significado |
 |-------|-------------|
@@ -20,9 +25,7 @@ Visualización, con la estética de **n8n**, del pipeline que automatiza la migr
 | 🟢 Verde-agua | Datos / HTTP |
 | 🟪 Violeta | Librería de patrones |
 | 🟩 Verde | Condición (gate) |
-| 🟠 Ámbar ✋ | Paso humano |
-
-Los dos pasos humanos (Rediseño y Aprobación) son los puntos de control de calidad. Al madurar la librería de patrones, más webs entran por la rama *"Sí, existe patrón"* y saltan el rediseño manual: el sistema se vuelve más autónomo con el uso.
+| 🟠 Ámbar ✋ | Paso humano (control de calidad) |
 
 ## Archivo
 
