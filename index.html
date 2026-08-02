@@ -1,0 +1,255 @@
+<title>Migración Web Ópticas · Flujo detallado (estilo n8n)</title>
+<style>
+  :root{
+    --bg:#EEF0F3;--dots:#CBD2DA;--node:#FFFFFF;--node-br:#DDE2E8;--ink:#1F2733;--ink-2:#5B6672;
+    --wire:#9AA6B2;--shadow:0 3px 10px rgba(20,30,45,.10);--bar:#FFFFFF;--bar-br:#E1E5EA;
+    --accent:#E0007C;--loop:#C77A16;
+    --sans:ui-sans-serif,'Helvetica Neue','Segoe UI',system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){:root{
+    --bg:#161B22;--dots:#2A313B;--node:#20272F;--node-br:#333C46;--ink:#E7ECF1;--ink-2:#9AA6B2;
+    --wire:#4B5663;--shadow:0 3px 12px rgba(0,0,0,.4);--bar:#1B2129;--bar-br:#2C333D;
+    --accent:#FF3DA0;--loop:#E0A43B;}}
+  :root[data-theme="dark"]{--bg:#161B22;--dots:#2A313B;--node:#20272F;--node-br:#333C46;--ink:#E7ECF1;
+    --ink-2:#9AA6B2;--wire:#4B5663;--shadow:0 3px 12px rgba(0,0,0,.4);--bar:#1B2129;--bar-br:#2C333D;
+    --accent:#FF3DA0;--loop:#E0A43B;}
+  :root[data-theme="light"]{--bg:#EEF0F3;--dots:#CBD2DA;--node:#FFFFFF;--node-br:#DDE2E8;--ink:#1F2733;
+    --ink-2:#5B6672;--wire:#9AA6B2;--shadow:0 3px 10px rgba(20,30,45,.10);--bar:#FFFFFF;--bar-br:#E1E5EA;
+    --accent:#E0007C;--loop:#C77A16;}
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+
+  .bar{display:flex;align-items:center;gap:14px;padding:10px 18px;background:var(--bar);
+    border-bottom:1px solid var(--bar-br);flex:none;z-index:8;}
+  .bar .wf{font-weight:700;font-size:.98rem;display:flex;align-items:center;gap:9px;}
+  .bar .wf .logo{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#FF3DA0,#E0007C);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;}
+  .bar .live{font-size:.74rem;font-weight:700;color:#16A34A;display:inline-flex;align-items:center;gap:6px;
+    padding:4px 10px;border-radius:999px;background:color-mix(in srgb,#16A34A 14%,transparent);}
+  .bar .live::before{content:"";width:7px;height:7px;border-radius:50%;background:#16A34A;}
+  .bar .tchip{font-size:.74rem;font-weight:700;color:var(--ink-2);padding:4px 11px;border-radius:999px;
+    background:var(--bg);border:1px solid var(--bar-br);}
+  .bar .spacer{flex:1;}
+  .bar .btn{font-size:.8rem;font-weight:600;color:var(--ink-2);border:1px solid var(--bar-br);
+    background:var(--node);border-radius:8px;padding:6px 12px;cursor:pointer;}
+  .theme-tog{border:1px solid var(--bar-br);background:var(--node);color:var(--ink);
+    width:34px;height:34px;border-radius:8px;cursor:pointer;}
+
+  .viewport{flex:1;overflow:auto;position:relative;}
+  .canvas{position:relative;width:7220px;height:520px;
+    background-image:radial-gradient(var(--dots) 1.4px, transparent 1.4px);
+    background-size:22px 22px;background-position:-1px -1px;}
+  svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;}
+
+  .frame{position:absolute;border-radius:16px;z-index:0;border:1.5px dashed;}
+  .frame .ftitle{position:absolute;top:-11px;left:14px;font-size:.68rem;font-weight:800;
+    letter-spacing:.05em;text-transform:uppercase;padding:3px 11px;border-radius:7px;color:#fff;}
+
+  .node{position:absolute;height:62px;background:var(--node);border:1px solid var(--node-br);
+    border-radius:12px;box-shadow:var(--shadow);display:flex;align-items:center;z-index:2;
+    transition:transform .12s ease,box-shadow .12s ease;}
+  .node:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(20,30,45,.16);}
+  .node .ico{width:44px;height:44px;margin:8px;border-radius:9px;flex:none;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+  .node .meta{padding-right:12px;min-width:0;}
+  .node .t{font-weight:700;font-size:.82rem;line-height:1.12;white-space:nowrap;}
+  .node .s{font-size:.68rem;color:var(--ink-2);white-space:nowrap;}
+  .node .badge{position:absolute;top:-9px;right:-6px;font-size:.6rem;font-weight:800;
+    padding:2px 7px;border-radius:999px;background:var(--node);border:1px solid var(--node-br);
+    color:var(--ink-2);z-index:4;white-space:nowrap;}
+  .node .badge.human{color:var(--loop);background:color-mix(in srgb,var(--loop) 12%,var(--node));
+    border-color:color-mix(in srgb,var(--loop) 45%,var(--node-br));}
+  .node.trigger{border-radius:12px 28px 28px 12px;}
+  .node.trigger .ico{border-radius:9px 20px 20px 9px;}
+  .node.gate{border-color:color-mix(in srgb,#22A06B 55%,var(--node-br));}
+  .node.stop{border-color:color-mix(in srgb,#C23A3A 55%,var(--node-br));}
+
+  .port{position:absolute;width:11px;height:11px;border-radius:50%;background:var(--node);
+    border:2px solid var(--wire);transform:translate(-50%,-50%);z-index:3;}
+
+  .wlabel{position:absolute;font-size:.66rem;font-weight:800;padding:2px 7px;border-radius:6px;
+    background:var(--node);border:1px solid var(--node-br);color:var(--ink-2);z-index:2;
+    transform:translate(-50%,-50%);white-space:nowrap;}
+  .wlabel.yes{color:#16A34A;} .wlabel.no{color:var(--loop);} .wlabel.loop{color:var(--loop);}
+
+  .legend{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;
+    flex-wrap:wrap;justify-content:center;background:var(--bar);border:1px solid var(--bar-br);
+    border-radius:999px;padding:8px 14px;box-shadow:var(--shadow);z-index:9;max-width:94vw;}
+  .lg{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;color:var(--ink-2);}
+  .lg .sw{width:11px;height:11px;border-radius:3px;}
+  .hint{position:fixed;top:56px;left:18px;font-size:.7rem;color:var(--ink-2);background:var(--bar);
+    border:1px solid var(--bar-br);border-radius:8px;padding:5px 10px;z-index:9;opacity:.92;}
+</style>
+
+<div class="bar">
+  <div class="wf"><span class="logo">◆</span> Migración Web · Ópticas — detallado</div>
+  <span class="live">Activo</span>
+  <span class="tchip">⏱ ~5 min/web automático · +2 h diseño (solo la 1ª vez)</span>
+  <div class="spacer"></div>
+  <button class="btn">Ejecutar ▷</button>
+  <button class="theme-tog" id="tog" aria-label="Tema">◐</button>
+</div>
+<div class="hint">↔ Desliza el lienzo · 34 nodos en 10 fases</div>
+
+<div class="viewport">
+  <div class="canvas" id="canvas">
+    <svg class="wires" id="wires" viewBox="0 0 7220 520" preserveAspectRatio="none">
+      <defs>
+        <marker id="arw" markerWidth="9" markerHeight="9" refX="6" refY="4.5" orient="auto">
+          <path d="M1,1 L7,4.5 L1,8 Z" fill="var(--wire)"/></marker>
+        <marker id="arwL" markerWidth="9" markerHeight="9" refX="6" refY="4.5" orient="auto">
+          <path d="M1,1 L7,4.5 L1,8 Z" fill="var(--loop)"/></marker>
+      </defs>
+    </svg>
+  </div>
+</div>
+
+<div class="legend">
+  <span class="lg"><span class="sw" style="background:#E0007C"></span>IA · Claude</span>
+  <span class="lg"><span class="sw" style="background:#334155"></span>Servidor · SSH</span>
+  <span class="lg"><span class="sw" style="background:#21759B"></span>WordPress</span>
+  <span class="lg"><span class="sw" style="background:#0EA5A0"></span>Datos / HTTP</span>
+  <span class="lg"><span class="sw" style="background:#8B5CF6"></span>Librería</span>
+  <span class="lg"><span class="sw" style="background:#22A06B"></span>Condición</span>
+  <span class="lg"><span class="sw" style="background:#C77A16"></span>Humano ✋</span>
+</div>
+
+<script>
+  const COL=214, W=180, H=62, BASE=40;
+  const Y={top:118, mid:248, bot:378};
+  const cx=c=>BASE+c*COL;
+
+  const N=[
+    ['trigger',0,'mid','⚡','Nuevo dominio','Disparador · lote','#64748B',{trigger:1}],
+    ['leerCsv',1,'mid','📄','Leer dominios','CSV · datos','#64748B'],
+    ['ssh',2,'mid','🔑','Conectar SSH','Servidor','#334155'],
+    ['bkFiles',3,'mid','📦','Backup archivos','rsync / FTP','#3B82F6'],
+    ['bkDb',4,'mid','🗄️','Backup BD','mysqldump','#3B82F6'],
+    ['verifyBk',5,'mid','✔️','Verificar backup','Condición','#22A06B',{gate:1}],
+    ['stop',5,'bot','⛔','Detener','Revisar acceso','#C23A3A',{stop:1}],
+    ['httpGet',6,'mid','🌐','Descargar HTML','HTTP','#0EA5A0'],
+    ['clean',7,'mid','🧹','Limpiar HTML','BeautifulSoup','#0EA5A0'],
+    ['imgs',8,'mid','🖼️','Extraer imágenes','Logo · fotos','#0EA5A0'],
+    ['audit',9,'mid','🧠','Auditar UX/UI','Claude','#E0007C'],
+    ['structure',10,'mid','🗂️','Estructurar → JSON','Claude · Pydantic','#E0007C'],
+    ['ifPattern',11,'mid','⋔','¿Existe patrón?','Condición','#22A06B',{gate:1}],
+    ['aplicar',12,'top','🧩','Aplicar patrón','Librería','#8B5CF6'],
+    ['redis',12,'bot','🎨','Rediseño a medida','✋ Frontend','#C77A16'],
+    ['savePattern',13,'bot','💾','Guardar patrón','→ Librería','#8B5CF6'],
+    ['dbCreate',14,'mid','🗄️','Crear BD','wp db create','#334155'],
+    ['wpCore',15,'mid','⬇️','Descargar WP','wp core download','#334155'],
+    ['wpConfig',16,'mid','⚙️','wp-config','wp config create','#334155'],
+    ['wpInstall',17,'mid','🔧','Instalar WP','wp core install','#334155'],
+    ['theme',18,'mid','🎨','Instalar tema','wp theme activate','#21759B'],
+    ['plugins',19,'mid','🔩','Instalar plugins','wp plugin','#21759B'],
+    ['appPass',20,'mid','🔑','App Password','para REST API','#334155'],
+    ['copy',21,'mid','✍️','Copy + SEO','Claude','#E0007C'],
+    ['media',22,'mid','🖼️','Subir imágenes','Media API','#21759B'],
+    ['pages',23,'mid','📄','Crear páginas','REST API','#21759B'],
+    ['menus',24,'mid','☰','Menús + submenús','REST API','#21759B'],
+    ['legal',25,'mid','⚖️','Impressum + DSGVO','Legal DE','#21759B'],
+    ['shot',26,'mid','📸','Screenshot','Resultado','#22A06B'],
+    ['checks',27,'mid','✔️','Checks QA','Enlaces · móvil','#22A06B'],
+    ['approve',28,'mid','✋','Aprobación','Revisión humana','#C77A16',{gate:1}],
+    ['swap',29,'mid','🚀','Go-live · swap','staging→prod','#16A34A'],
+    ['redirects',30,'mid','↪️','Redirecciones 301','SEO','#16A34A'],
+    ['verify',31,'mid','🔒','Verificar','SSL · sitemap','#16A34A'],
+    ['notify',32,'mid','🔔','Notificar equipo','Email / Slack','#64748B'],
+  ].map(a=>({id:a[0],x:cx(a[1]),y:Y[a[2]],ic:a[3],t:a[4],s:a[5],c:a[6],...(a[7]||{})}));
+  const B=Object.fromEntries(N.map(n=>[n.id,n]));
+
+  const DUR={trigger:'',leerCsv:'0.2 s',ssh:'2 s',bkFiles:'~90 s',bkDb:'~10 s',verifyBk:'1 s',stop:'',
+    httpGet:'2 s',clean:'0.3 s',imgs:'~15 s',audit:'~20 s',structure:'~15 s',ifPattern:'0 s',aplicar:'2 s',
+    redis:'~2 h',savePattern:'1 s',dbCreate:'2 s',wpCore:'~20 s',wpConfig:'1 s',wpInstall:'5 s',theme:'~10 s',
+    plugins:'~20 s',appPass:'1 s',copy:'~25 s',media:'~30 s',pages:'5 s',menus:'2 s',legal:'3 s',shot:'5 s',
+    checks:'5 s',approve:'~15 min',swap:'~10 s',redirects:'2 s',verify:'5 s',notify:'1 s'};
+  const HUMAN=new Set(['redis','approve']);
+
+  const FRAMES=[
+    ['Preparación',0,2,'#64748B'],['Backup',3,5,'#3B82F6'],['Extracción',6,8,'#0EA5A0'],
+    ['Análisis · IA',9,10,'#E0007C'],['Diseño',11,13,'#8B5CF6'],
+    ['Provisión WordPress',14,20,'#334155'],['Contenido',21,25,'#21759B'],
+    ['QA',26,27,'#22A06B'],['Aprobación',28,28,'#C77A16'],['Publicación',29,32,'#16A34A'],
+  ];
+
+  const WIRES=[
+    ['trigger','leerCsv'],['leerCsv','ssh'],['ssh','bkFiles'],['bkFiles','bkDb'],['bkDb','verifyBk'],
+    ['verifyBk','httpGet',{label:'OK',cls:'yes'}],
+    ['verifyBk','stop',{side:'bot',label:'Error',cls:'no'}],
+    ['httpGet','clean'],['clean','imgs'],['imgs','audit'],['audit','structure'],['structure','ifPattern'],
+    ['ifPattern','aplicar',{side:'top',label:'Sí',cls:'yes'}],
+    ['ifPattern','redis',{side:'bot',label:'No',cls:'no'}],
+    ['aplicar','dbCreate'],['redis','savePattern'],['savePattern','dbCreate'],
+    ['dbCreate','wpCore'],['wpCore','wpConfig'],['wpConfig','wpInstall'],['wpInstall','theme'],
+    ['theme','plugins'],['plugins','appPass'],['appPass','copy'],['copy','media'],['media','pages'],
+    ['pages','menus'],['menus','legal'],['legal','shot'],['shot','checks'],['checks','approve'],
+    ['approve','swap',{label:'Sí',cls:'yes'}],
+    ['swap','redirects'],['redirects','verify'],['verify','notify'],
+    ['approve','redis',{side:'bot',loop:1,label:'No aprobado ↺',cls:'loop'}],
+  ];
+
+  const canvas=document.getElementById('canvas'), svg=document.getElementById('wires');
+  const yOf=(n,side)=>n.y+(side==='top'?H*0.30:side==='bot'?H*0.70:H/2);
+  const outP=(n,side)=>({x:n.x+W,y:yOf(n,side)});
+  const inP =n=>({x:n.x,y:n.y+H/2});
+
+  // Frames (sticky notes por fase)
+  FRAMES.forEach(([title,c0,c1,col])=>{
+    const f=document.createElement('div'); f.className='frame';
+    f.style.left=(cx(c0)-14)+'px'; f.style.top='88px';
+    f.style.width=((c1-c0)*COL+W+28)+'px'; f.style.height='376px';
+    f.style.background=`color-mix(in srgb, ${col} 9%, transparent)`;
+    f.style.borderColor=`color-mix(in srgb, ${col} 45%, transparent)`;
+    f.innerHTML=`<span class="ftitle" style="background:${col}">${title}</span>`;
+    canvas.appendChild(f);
+  });
+
+  // Puertos de salida por nodo
+  const outSides={}; WIRES.forEach(([f,,o={}])=>{(outSides[f]=outSides[f]||new Set()).add(o.side||'mid');});
+
+  // Nodos
+  N.forEach(n=>{
+    const el=document.createElement('div');
+    el.className='node'+(n.trigger?' trigger':'')+(n.gate?' gate':'')+(n.stop?' stop':'');
+    el.style.left=n.x+'px'; el.style.top=n.y+'px'; el.style.width=W+'px';
+    let ports = n.trigger?'' : `<span class="port" style="left:0;top:50%"></span>`;
+    (outSides[n.id]?[...outSides[n.id]]:['mid']).forEach(sd=>{
+      const py=(yOf(n,sd)-n.y); ports+=`<span class="port" style="left:100%;top:${py}px"></span>`;
+    });
+    const bd=DUR[n.id]?`<span class="badge${HUMAN.has(n.id)?' human':''}">${HUMAN.has(n.id)?'✋ ':'⏱ '}${DUR[n.id]}</span>`:'';
+    el.innerHTML=`<div class="ico" style="background:${n.c}">${n.ic}</div>
+      <div class="meta"><div class="t">${n.t}</div><div class="s">${n.s}</div></div>${ports}${bd}`;
+    canvas.appendChild(el);
+  });
+
+  function bez(a,b){const d=Math.max(55,Math.abs(b.x-a.x)*0.5);
+    return `M ${a.x} ${a.y} C ${a.x+d} ${a.y}, ${b.x-d} ${b.y}, ${b.x} ${b.y}`;}
+  function wire(d,loop){const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',d);p.setAttribute('fill','none');
+    p.setAttribute('stroke',loop?'var(--loop)':'var(--wire)');p.setAttribute('stroke-width','2.3');
+    p.setAttribute('marker-end',loop?'url(#arwL)':'url(#arw)');
+    if(loop){p.setAttribute('stroke-dasharray','7 6');p.setAttribute('opacity','.85');}
+    svg.appendChild(p);}
+  function label(x,y,t,cls){const l=document.createElement('div');l.className='wlabel '+(cls||'');
+    l.style.left=x+'px';l.style.top=y+'px';l.textContent=t;canvas.appendChild(l);}
+
+  WIRES.forEach(([f,t,o={}])=>{
+    const a=outP(B[f],o.side), b=inP(B[t]);
+    if(o.loop){
+      wire(`M ${a.x} ${a.y} C ${a.x} 486, ${b.x} 486, ${b.x} ${b.y}`,true);
+      label((a.x+b.x)/2,486,o.label,o.cls);
+    }else{
+      wire(bez(a,b),false);
+      if(o.label) label((a.x+b.x)/2,(a.y+b.y)/2-1,o.label,o.cls);
+    }
+  });
+
+  document.getElementById('tog').addEventListener('click',()=>{
+    const c=document.documentElement.getAttribute('data-theme');
+    const dark=c?c==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+  });
+</script>
