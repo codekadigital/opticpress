@@ -12,7 +12,7 @@ Extrae el contenido de la web vieja (Locomotive) → lo audita y estructura con 
 
 ## Ver el flujo
 
-- **En vivo (GitHub Pages):** `https://codekadigital.github.io/optik-flujo-n8n/`
+- **En vivo (GitHub Pages):** `https://codekadigital.github.io/opticpress/`
 - **Local:** abre `index.html` en el navegador.
 
 ## Leyenda
